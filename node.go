@@ -3,12 +3,16 @@
 
 package knit
 
-type Node interface{}
+type Node interface {
+	Line() int
+	Col() int
+}
 
 type NodeCollection interface {
+	Node
 	Parent() NodeCollection
 	Len() int
 	Nodes() []Node
 	Node(int) Node
-	Append(m Node)
+	Append(Node)
 }

@@ -12,4 +12,9 @@ package knit
 // exactly three times.
 type Number struct {
 	Value int64
+	line  int
+	col   int
 }
+
+func (n *Number) Line() int { return n.line }
+func (n *Number) Col() int  { return n.col }

@@ -13,7 +13,7 @@ func TestPattern(t *testing.T) {
 	tests := []string{
 		`p k`, `p1 k1`,
 		`c9
-		[p3 yo s3 k3 inc]10
+		[p3 yo s3 yo k3 inc]10
 		bo+`,
 	}
 

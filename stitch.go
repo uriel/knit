@@ -7,8 +7,7 @@ type StitchKind uint8
 
 // Known stitch kinds.
 const (
-	UnknownStitch StitchKind = iota
-	KnitStitch
+	KnitStitch StitchKind = iota
 	PurlStitch
 	SlipStitch
 	CastOn
@@ -41,30 +40,46 @@ func (s StitchKind) String() string {
 	panic("unreachable")
 }
 
-func getStitchKind(v string) StitchKind {
-	switch v {
-	case "k":
-		return KnitStitch
-	case "p":
-		return PurlStitch
-	case "sl", "s":
-		return SlipStitch
-	case "co", "c":
-		return CastOn
-	case "bo", "b":
-		return BindOff
-	case "inc":
-		return Increase
-	case "dec", "tog":
-		return Decrease
-	case "yo":
-		return YarnOver
-	}
-
-	return UnknownStitch
-}
-
 // A stich defines a specific kind of stitch to perform.
 type Stitch struct {
+	line int
+	col  int
 	Kind StitchKind
 }
+
+// newStitch creates a new stitch from the given type.
+// Returns nil if the type is not recognized as a valid stitch.
+// We expect v to be something like 'k' for Knit stitch or 'p'
+// for Purl stitch.
+func newStitch(v string, line, col int) *Stitch {
+	s := new(Stitch)
+	s.line = line
+	s.col = col
+
+	switch v {
+	case "k":
+		s.Kind = KnitStitch
+	case "p":
+		s.Kind = PurlStitch
+	case "sl", "s":
+		s.Kind = SlipStitch
+	case "co", "c":
+		s.Kind = CastOn
+	case "bo", "b":
+		s.Kind = BindOff
+	case "inc":
+		s.Kind = Increase
+	case "dec", "tog":
+		s.Kind = Decrease
+	case "yo":
+		s.Kind = YarnOver
+
+	default:
+		return nil
+	}
+
+	return s
+}
+
+func (s *Stitch) Line() int { return s.line }
+func (s *Stitch) Col() int  { return s.col }

@@ -50,6 +50,8 @@ loop:
 
 			case tokGroupStart:
 				g := new(Group)
+				g.line = tok.Line
+				g.col = tok.Col
 				g.parent = node
 				node.Append(g)
 				node = g
@@ -75,12 +77,12 @@ loop:
 					}
 				}
 
-				node.Append(&Number{n})
+				node.Append(&Number{n, tok.Line, tok.Col})
 
 			case tokQuantifier:
-				kind := getQuantifierKind(tok.Data)
+				q := newQuantifier(tok.Data, tok.Line, tok.Col)
 
-				if kind == UnknownQuantifier {
+				if q == nil {
 					return nil, fmt.Errorf("%s:%d:%d Unknown quantifier kind %q,",
 						name, tok.Line, tok.Col, tok.Data)
 				}
@@ -95,17 +97,17 @@ loop:
 					}
 				}
 
-				node.Append(&Quantifier{kind})
+				node.Append(q)
 
 			case tokStitch:
-				kind := getStitchKind(tok.Data)
+				s := newStitch(tok.Data, tok.Line, tok.Col)
 
-				if kind == UnknownStitch {
+				if s == nil {
 					return nil, fmt.Errorf("%s:%d:%d Unknown stitch kind %q,",
 						name, tok.Line, tok.Col, tok.Data)
 				}
 
-				node.Append(&Stitch{kind})
+				node.Append(s)
 			}
 		}
 	}
@@ -131,18 +133,22 @@ func dumpNodes(w io.Writer, list NodeCollection, indent string) {
 	for _, node := range list.Nodes() {
 		switch tt := node.(type) {
 		case NodeCollection:
-			fmt.Fprintf(w, "%s%T {\n", indent, tt)
+			fmt.Fprintf(w, "%s%03d:%03d %T {\n",
+				indent, tt.Line(), tt.Col(), tt)
 			dumpNodes(w, tt, indent+"  ")
 			fmt.Fprintf(w, "%s}\n", indent)
 
 		case *Stitch:
-			fmt.Fprintf(w, "%s%T(%q)\n", indent, tt, tt.Kind)
+			fmt.Fprintf(w, "%s%03d:%03d %T(%q)\n",
+				indent, tt.Line(), tt.Col(), tt, tt.Kind)
 
 		case *Quantifier:
-			fmt.Fprintf(w, "%s%T(%q)\n", indent, tt, tt.Kind)
+			fmt.Fprintf(w, "%s%03d:%03d %T(%q)\n",
+				indent, tt.Line(), tt.Col(), tt, tt.Kind)
 
 		case *Number:
-			fmt.Fprintf(w, "%s%T(%d)\n", indent, tt, tt.Value)
+			fmt.Fprintf(w, "%s%03d:%03d %T(%d)\n",
+				indent, tt.Line(), tt.Col(), tt, tt.Value)
 		}
 	}
 }
