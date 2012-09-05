@@ -166,18 +166,18 @@ func (l *lexer) number() bool {
 	return false
 }
 
-// stitch consumes bytes for as long as they qualify as a stitch identifier.
-func (l *lexer) stitch() bool {
+// ident consumes bytes for as long as they qualify as an ident.
+func (l *lexer) ident() bool {
 	var n int
 
 	for {
-		_, err := l.next()
+		b, err := l.next()
 
 		if err != nil {
 			return false
 		}
 
-		if !isStitch(l.current()) {
+		if !isLetter(b) {
 			l.rewind()
 			break
 		}
@@ -211,12 +211,8 @@ func (l *lexer) quantifier() bool {
 	return false
 }
 
-func isStitch(v string) bool {
-	switch v {
-	case "k", "p", "s", "c", "co", "b", "bo":
-		return true
-	}
-	return false
+func isLetter(v byte) bool {
+	return (v >= 'a' && v <= 'z') || (v >= 'A' && v <= 'Z')
 }
 
 func isWhitespace(v byte) bool {

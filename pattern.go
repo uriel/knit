@@ -113,9 +113,9 @@ loop:
 	return p, nil
 }
 
-// Dump writes a human-readable form of the pattern node tree
+// dump writes a human-readable form of the pattern node tree
 // to the given writer. This is for debugging only.
-func (p *Pattern) Dump(w io.Writer) {
+func (p *Pattern) dump(w io.Writer) {
 	if p.Root == nil || len(p.Root.Nodes) == 0 {
 		fmt.Fprintf(w, "Pattern %q: <empty>\n", p.Name)
 	} else {

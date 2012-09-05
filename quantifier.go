@@ -11,8 +11,8 @@ const (
 	FillRowQuantifier
 )
 
-func (s QuantifierKind) String() string {
-	switch s {
+func (q QuantifierKind) String() string {
+	switch q {
 	case FillRowQuantifier:
 		return "FillRow"
 	}

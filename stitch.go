@@ -13,20 +13,26 @@ const (
 	SlipStitch
 	CastOnStitch
 	BindOffStitch
+	IncreaseStitch
+	DecreaseStitch
 )
 
 func (s StitchKind) String() string {
 	switch s {
 	case KnitStitch:
-		return "Knit"
+		return "K"
 	case PurlStitch:
-		return "Purl"
+		return "P"
 	case SlipStitch:
-		return "Slip"
+		return "S"
 	case CastOnStitch:
-		return "Caston"
+		return "CO"
 	case BindOffStitch:
-		return "Bindoff"
+		return "BO"
+	case IncreaseStitch:
+		return "INC"
+	case DecreaseStitch:
+		return "DEC"
 	}
 
 	panic("unreachable")
@@ -44,6 +50,10 @@ func getStitchKind(v string) StitchKind {
 		return CastOnStitch
 	case "bo", "b":
 		return BindOffStitch
+	case "inc":
+		return IncreaseStitch
+	case "dec":
+		return DecreaseStitch
 	}
 
 	return UnknownStitch

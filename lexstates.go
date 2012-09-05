@@ -14,7 +14,7 @@ func lexText(l *lexer) lexState {
 		return lexText
 	}
 
-	if l.stitch() {
+	if l.ident() {
 		return lexText
 	}
 
