@@ -4,20 +4,26 @@
 package knit
 
 import (
+	"fmt"
+	"os"
 	"testing"
 )
 
 func TestPattern(t *testing.T) {
 	tests := []string{
 		`p k`, `p1 k1`,
-		`co9 [p3 s3 k3]*10 bo`,
+		`c9
+		[p3 s3 k3]10
+		bo+`,
 	}
 
 	for i, str := range tests {
-		_, err := Parse(str)
+		p, err := Parse(fmt.Sprintf("Pattern %d", i), str)
 
 		if err != nil {
-			t.Fatalf("Pattern %d: %v", i, err)
+			t.Fatal(err)
 		}
+
+		p.Dump(os.Stdout)
 	}
 }

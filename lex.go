@@ -202,7 +202,7 @@ func (l *lexer) quantifier() bool {
 	}
 
 	switch b {
-	case '*', '+':
+	case '*', '+', '-', '$', '^':
 		l.emit(tokQuantifier)
 		return true
 	}
