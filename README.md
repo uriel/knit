@@ -13,6 +13,10 @@ many of the established pattern practises as possible, while still
 maintaining reliability and effectiveness in an automated parsing
 environment like this package.
 
+Refer to [this][1] page for an overview of the pattern constructs
+we support.
+
+[1]: http://www.craftyarncouncil.com/tip_knit.html
 
 ### Usage
 

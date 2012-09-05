@@ -11,8 +11,8 @@ import (
 
 // Pattern represents a single, complete knitting pattern.
 type Pattern struct {
-	Name string // Name of the pattern.
-	Root *Group // Root node for the pattern's node tree.
+	Name string         // Name of the pattern.
+	Root NodeCollection // Root node for the pattern's node tree.
 }
 
 // MustParse parses the input pattern.
@@ -50,12 +50,12 @@ loop:
 
 			case tokGroupStart:
 				g := new(Group)
-				g.Parent = node
-				node.Nodes = append(node.Nodes, g)
+				g.parent = node
+				node.Append(g)
 				node = g
 
 			case tokGroupEnd:
-				node = node.Parent
+				node = node.Parent()
 
 			case tokNumber:
 				n, err := strconv.ParseInt(tok.Data, 10, 32)
@@ -66,8 +66,8 @@ loop:
 				}
 
 				// A number can not follow a number or quantifier.
-				if sz := len(node.Nodes); sz > 0 {
-					switch node.Nodes[sz-1].(type) {
+				if sz := node.Len(); sz > 0 {
+					switch node.Node(sz - 1).(type) {
 					case *Number, *Quantifier:
 						return nil, fmt.Errorf(
 							"%s:%d:%d Expected Stitch or Group, found Number %q,",
@@ -75,7 +75,7 @@ loop:
 					}
 				}
 
-				node.Nodes = append(node.Nodes, &Number{n})
+				node.Append(&Number{n})
 
 			case tokQuantifier:
 				kind := getQuantifierKind(tok.Data)
@@ -86,8 +86,8 @@ loop:
 				}
 
 				// A quantifier can not follow a number or quantifier.
-				if sz := len(node.Nodes); sz > 0 {
-					switch node.Nodes[sz-1].(type) {
+				if sz := node.Len(); sz > 0 {
+					switch node.Node(sz - 1).(type) {
 					case *Number, *Quantifier:
 						return nil, fmt.Errorf(
 							"%s:%d:%d Expected Stitch or Group, found Quantifier %q,",
@@ -95,7 +95,7 @@ loop:
 					}
 				}
 
-				node.Nodes = append(node.Nodes, &Quantifier{kind})
+				node.Append(&Quantifier{kind})
 
 			case tokStitch:
 				kind := getStitchKind(tok.Data)
@@ -105,7 +105,7 @@ loop:
 						name, tok.Line, tok.Col, tok.Data)
 				}
 
-				node.Nodes = append(node.Nodes, &Stitch{kind})
+				node.Append(&Stitch{kind})
 			}
 		}
 	}
@@ -116,23 +116,23 @@ loop:
 // dump writes a human-readable form of the pattern node tree
 // to the given writer. This is for debugging only.
 func (p *Pattern) dump(w io.Writer) {
-	if p.Root == nil || len(p.Root.Nodes) == 0 {
+	if p.Root == nil || p.Root.Len() == 0 {
 		fmt.Fprintf(w, "Pattern %q: <empty>\n", p.Name)
 	} else {
 		fmt.Fprintf(w, "Pattern %q:\n", p.Name)
 	}
 
-	dumpNodes(w, p.Root.Nodes, " ")
+	dumpNodes(w, p.Root, " ")
 }
 
 // dumpNodes recursively dumps nodes out to the guven writer in
 // a human-readable form. For debugging purposes only.
-func dumpNodes(w io.Writer, list []interface{}, indent string) {
-	for _, node := range list {
+func dumpNodes(w io.Writer, list NodeCollection, indent string) {
+	for _, node := range list.Nodes() {
 		switch tt := node.(type) {
-		case *Group:
+		case NodeCollection:
 			fmt.Fprintf(w, "%s%T {\n", indent, tt)
-			dumpNodes(w, tt.Nodes, indent+"  ")
+			dumpNodes(w, tt, indent+"  ")
 			fmt.Fprintf(w, "%s}\n", indent)
 
 		case *Stitch:
