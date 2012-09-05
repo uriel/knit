@@ -43,7 +43,7 @@ loop:
 
 			}
 
-			fmt.Printf("%7s: %q\n", tok.Type, tok.Data)
+			//fmt.Printf("%6s: %q\n", tok.Type, tok.Data)
 		}
 	}
 

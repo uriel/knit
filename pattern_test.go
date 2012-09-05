@@ -5,23 +5,19 @@ package knit
 
 import (
 	"testing"
-	"time"
 )
 
 func TestPattern(t *testing.T) {
 	tests := []string{
 		`p k`, `p1 k1`,
-		`co9 [p3 s3 k3]*10 bo+`,
+		`co9 [p3 s3 k3]*10 bo`,
 	}
 
 	for i, str := range tests {
-		start := time.Now()
 		_, err := Parse(str)
 
 		if err != nil {
 			t.Fatalf("Pattern %d: %v", i, err)
 		}
-
-		println(time.Since(start).String())
 	}
 }
