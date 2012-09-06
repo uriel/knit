@@ -74,37 +74,17 @@ loop:
 						name, tok.Line, tok.Col, tok.Data)
 				}
 
-				// A number can not follow a number or quantifier.
+				// A number can not directly follow another number.
 				if sz := node.Len(); sz > 0 {
 					switch node.Node(sz - 1).(type) {
-					case *Number, *Quantifier:
+					case *Number:
 						return nil, fmt.Errorf(
 							"%s:%d:%d Expected Stitch or Group, found Number %q,",
 							name, tok.Line, tok.Col, tok.Data)
 					}
 				}
 
-				node.Append(&Number{n, tok.Line, tok.Col})
-
-			case tokQuantifier:
-				q := newQuantifier(tok.Data, tok.Line, tok.Col)
-
-				if q == nil {
-					return nil, fmt.Errorf("%s:%d:%d Unknown quantifier kind %q,",
-						name, tok.Line, tok.Col, tok.Data)
-				}
-
-				// A quantifier can not follow a number or quantifier.
-				if sz := node.Len(); sz > 0 {
-					switch node.Node(sz - 1).(type) {
-					case *Number, *Quantifier:
-						return nil, fmt.Errorf(
-							"%s:%d:%d Expected Stitch or Group, found Quantifier %q,",
-							name, tok.Line, tok.Col, tok.Data)
-					}
-				}
-
-				node.Append(q)
+				node.Append(&Number{int(n), tok.Line, tok.Col})
 			}
 		}
 	}
@@ -112,20 +92,103 @@ loop:
 	return p, nil
 }
 
-// Expand uses the supplied handler to return a copy of this pattern
-// with any references replaced by their actual data.
-func (p *Pattern) Expand(rh ReferenceHandler) (*Pattern, error) {
-	np := new(Pattern)
-	np.Name = p.Name
+// Expand uses the supplied handler to replace any external references
+// with their actual data. It expands the referenced patterns recursively.
+func (p *Pattern) Expand(rh ReferenceHandler) error {
+	if rh == nil {
+		return fmt.Errorf("Expand %q: Invalid reference handler.", p.Name)
+	}
 
-	return np, nil
+	err := expand(p, rh)
+
+	if err != nil {
+		return fmt.Errorf("Expand %q: %v", p.Name, err)
+	}
+
+	return nil
 }
 
-// Unwind unrolls all 'loop' constructs.
-// It returns a copy of the original pattern.
-func (p *Pattern) Unwind() (*Pattern, error) {
-	np := new(Pattern)
-	np.Name = p.Name
+// Unroll unrolls all 'loop' constructs.
+func (p *Pattern) Unroll() { unroll(p) }
 
-	return np, nil
+// expand recursively expands pattern references.
+func expand(list NodeCollection, rh ReferenceHandler) error {
+	for i, node := range list.Nodes() {
+		switch tt := node.(type) {
+		case NodeCollection:
+			err := expand(tt, rh)
+
+			if err != nil {
+				return err
+			}
+
+		case *Reference:
+			ref, err := rh(tt.Name)
+			if err != nil {
+				return err
+			}
+
+			err = ref.Expand(rh)
+			if err != nil {
+				return err
+			}
+
+			list.SetNode(i, ref.Group)
+		}
+	}
+
+	return nil
+}
+
+// unroll recursively unwinds loops.
+func unroll(list NodeCollection) {
+	var tmp []Node
+	var elem Node
+	var i, k int
+
+	nodes := list.Nodes()
+
+	for i = 0; i < len(nodes); i++ {
+		switch tt := nodes[i].(type) {
+		case NodeCollection:
+			unroll(tt)
+
+		case *Number:
+			if i == 0 {
+				continue
+			}
+
+			elem = nodes[i-1]
+			tmp = make([]Node, tt.Value-1+len(nodes)-1)
+
+			copy(tmp, nodes[:i])
+			copy(tmp[i+tt.Value-1:], nodes[i+1:])
+
+			// Repeat the previous element num - 1 times.
+			for k = 0; k < tt.Value-1; k++ {
+				tmp[i+k] = elem
+			}
+
+			nodes = tmp
+		}
+	}
+
+	// Unpack groups.
+	for i = 0; i < len(nodes); i++ {
+		tt, ok := nodes[i].(NodeCollection)
+
+		if !ok {
+			continue
+		}
+
+		tmp = make([]Node, tt.Len()+len(nodes)-1)
+
+		copy(tmp, nodes[:i])
+		copy(tmp[i:], tt.Nodes())
+		copy(tmp[i+tt.Len():], nodes[i+1:])
+
+		nodes = tmp
+	}
+
+	list.SetNodes(nodes)
 }

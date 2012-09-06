@@ -51,14 +51,10 @@ knit stitches. And repeat the whole block ten times.
 
 ### Quantifiers
 
-Quantifiers determine how often a given sitch or group should
-be repeated. These can be made up of absolute numbers or special
-tokens whch have a more abstract meaning.
-
-* `0` `1` `2` etc: These give an absolute number of repetitions for
-  the preceeding stitch or group.
-* `+`: Repeat the preceeding stitch or group until the end of the row,
-  regardless of how many stitches that might be.
+Quantifiers determine how often a given stitch or group should
+be repeated. These are made up of absolute numbers (`1`, `2`, etc).
+These specify an absolute number of repetitions for the preceeding
+stitch or group.
 
 Every stitch and group has an implicit quantifier of `1`.
 There is therefore no need to specify it in the pattern if all you need is
@@ -75,11 +71,8 @@ given pattern by name. This allow us to split large patterns up into
 smaller, managable chunks and build more complex patterns by embedding
 the ready-made building blocks.
 
-For example, pattern 'A' is defined as `[P3 K3] 10`.
-This means: Purl three stitches and Knit three stitches; then repeat the
-whole thing ten times.
-
-Pattern 'B' can incorporate 'A' by referencing it by name: `P10 $A P10`.
+For example, pattern 'A' is defined as: `[P3 K3] 5`.
+Pattern 'B' can incorporate 'A' by referencing it by name: `P10 $A 2 P10`.
 
 
 ### Reference Expansion
@@ -92,27 +85,32 @@ or one can instruct the pattern to do so by calling the
 
 The host application must implement the `ReferenceHandler` and it should
 return a valid, compiled pattern for the supplied reference name.
-`Expand` returns a copy of the pattern where all references have been expanded.
+`Expand` expands all references in place.
 
-After this call, the example pattern above would look like this:
+After this call, the 'B' above would look like this:
 
-	P10 [P3 K3] 10 P10
+	P10 [[P3 K3] 5] 2 P10
 
 
 ### Loop unrolling
 
-The parser also does not do loop unrolling by default. However, it can be
-instructed to do so by calling the `Pattern.Unwind()` method.
+The parser does not do loop unrolling by default. However, it can be
+instructed to do so by calling the `Pattern.Unroll()` method.
 
-This returns a new pattern instance where all 'loops' are unrolled and any
-references are replaced with the actual data from the referenced patterns.
-For this purpose, it accepts a function pointer of type `ReferenceHandler`.
+For example:
 
-The host application must implement it and it should return a valid, compiled
-pattern for the supplied reference name. After a call to `Expand`, the example
-pattern above would look like this:
+	P2 K3 [P INC 2] 2
 
-	P10 P3 K3 P3 K3 P3 K3 P3 K3 P3 K3 P3 K3 P3 K3 P3 K3 P3 K3 P3 K3 P10
+Will become:
+
+	P P K K K P INC INC P INC INC
+
+This is mostly practical when using the pattern to generate some other
+form of output. Getting rid of the nested groupings like this makes
+processing considerably easier.
+
+After a call to `Unroll`, there should be no Number or Group nodes
+left in the pattern. Only basic Stitch nodes.
 
 
 ### Usage

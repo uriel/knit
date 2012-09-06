@@ -234,24 +234,6 @@ func (l *lexer) reference() bool {
 	return false
 }
 
-// quantifier consumes the next byte if it is a quantifier.
-func (l *lexer) quantifier() bool {
-	b, err := l.next()
-
-	if err != nil {
-		return false
-	}
-
-	switch b {
-	case '+':
-		l.emit(tokQuantifier)
-		return true
-	}
-
-	l.rewind()
-	return false
-}
-
 func isName(v byte) bool {
 	return v == '_' || isDigit(v) || isLetter(v)
 }

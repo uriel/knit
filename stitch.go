@@ -62,5 +62,8 @@ type Stitch struct {
 	Kind StitchKind
 }
 
+// Line returns the original pattern source line number for this node.
 func (s *Stitch) Line() int { return s.line }
-func (s *Stitch) Col() int  { return s.col }
+
+// Col returns the original pattern source column number for this node.
+func (s *Stitch) Col() int { return s.col }

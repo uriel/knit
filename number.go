@@ -6,15 +6,16 @@ package knit
 // A number holds a concrete amount of times to repeat the preceeding
 // group or stitch.
 //
-// For example: `P3`.
-//
-// The number `3` tells us the P stitch should be repeated
-// exactly three times.
+// For example in the pattern `P3`, the number `3` tells us the P stitch
+// should be repeated exactly three times.
 type Number struct {
-	Value int64
+	Value int
 	line  int
 	col   int
 }
 
+// Line returns the original pattern source line number for this node.
 func (n *Number) Line() int { return n.line }
-func (n *Number) Col() int  { return n.col }
+
+// Col returns the original pattern source column number for this node.
+func (n *Number) Col() int { return n.col }
