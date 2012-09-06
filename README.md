@@ -1,10 +1,10 @@
 ## knit
 
-**Note**: This is work in progress and subject to change.
+**Note**: This is work in progress and subject to breaking changes.
 
 Knit parses knitting patterns into a parse tree.
 
-To make this work reliably, we define a formal and relatively
+To make this work reliably, we define a simple and relatively
 strict pattern syntax. There are established knitting pattern formats
 out there, but they are not strict enough to be suitable for parsing
 in a practical and efficient manner.
