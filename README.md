@@ -33,19 +33,15 @@ All constructs are case insensitive.
 * `Yo`: Yarn over
 
 Stitches can be directly followed by a quantifier (see below), in order
-to determine how often it should be repeated.
+to determine how often they should be repeated.
 
 For example `P3 K2` means: Three Purl stitches, followed by two Knit stitches.
 
 ### Groupings
 
-* Any sequence of stitches can be encased in `[` and `]`, to
-  turn it into a distinct grouping. A group can have its own
-  quantifiers (see below), to determine how often it should
-  be repeated.
-
-Groups can be directly followed by a quantifier, in order
-to determine how often it should be repeated.
+Any sequence of stitches can be encased in `[` and `]`, to turn it into a
+distinct grouping. A group can have its own quantifiers (see below), to
+determine how often it should be repeated.
 
 For example `[p3 k3] 10` means: Three Purl stitches, followed by three
 knit stitches. And repeat the whole block ten times.
@@ -53,10 +49,9 @@ knit stitches. And repeat the whole block ten times.
 
 ### Quantifiers
 
-Quantifiers determine how often a given stitch or group should
-be repeated. These are made up of absolute numbers (`1`, `2`, etc).
-These specify an absolute number of repetitions for the preceeding
-stitch or group.
+Quantifiers specify the repetition count for a given stitch or group.
+They consist of absolute numbers (`1`, `2`, etc) and specify an absolute
+number of repetitions for the preceeding stitch or group.
 
 Every stitch and group has an implicit quantifier of `1`.
 There is therefore no need to specify it in the pattern if all you need is
@@ -68,28 +63,33 @@ It is functionally identical to the pattern `P1K1`.
 
 ### Pattern Nesting
 
-In addition, we allow other patterns to be referenced inside a
-given pattern by name. This allow us to split large patterns up into
-smaller, managable chunks and build more complex patterns by embedding
-the ready-made building blocks.
+In addition, we allow other patterns to be referenced by name.
+This allow us to split large patterns up into smaller, managable chunks and
+build more complex patterns by embedding the ready-made building blocks.
 
-For example, pattern 'A' is defined as: `[P3 K3] 5`.
+For example, pattern 'A' is defined as `[P3 K3] 5`.
 Pattern 'B' can incorporate 'A' by referencing it by name: `P10 $A 2 P10`.
 
 
 ### Reference Expansion
 
-The parser does not expand the reference to 'A' during the parsing, but it
+The parser does not expand the reference to 'A' during parsing, but it
 is left in there as a `Reference` node with the name `A`. It is up to the
-host application to supply the actual contents of this reference during use,
-or one can instruct the pattern to do so by calling the
+host application to supply the actual contents of this reference during use.
+Alternatively, one can instruct the pattern to do so by calling the
 `Pattern.Expand(ReferenceHandler)` method.
 
 The host application must implement the `ReferenceHandler` and it should
 return a valid, compiled pattern for the supplied reference name.
 `Expand` expands all references in place.
 
-After this call, the 'B' example above would look like this:
+For example:
+
+	a, err := Parse("A", "[P3 K3] 5")
+	b, err := Parse("B", "P10 $A 2 P10")
+	err := b.Expand(...)
+
+'B' is now:
 
 	P10 [[P3 K3] 5] 2 P10
 
