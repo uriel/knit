@@ -166,18 +166,18 @@ func (l *lexer) number() bool {
 	return false
 }
 
-// stitch consumes bytes for as long as they qualify as a known stitch name.
-func (l *lexer) stitch() bool {
+// ident consumes bytes for as long as they qualify as an ident.
+func (l *lexer) ident() bool {
 	var n int
 
 	for {
-		_, err := l.next()
+		b, err := l.next()
 
 		if err != nil {
 			return false
 		}
 
-		if getStitchKind(l.current()) == UnknownStitch {
+		if !isLetter(b) {
 			l.rewind()
 			break
 		}

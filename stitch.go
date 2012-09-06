@@ -14,6 +14,8 @@ const (
 	PurlStitch
 	SlipStitch
 	CastOn
+	KnitOn
+	PurlOn
 	BindOff
 	Increase
 	Decrease
@@ -33,6 +35,8 @@ func init() {
 	stitches["s"] = SlipStitch
 	stitches["co"] = CastOn
 	stitches["bo"] = BindOff
+	stitches["ko"] = KnitOn
+	stitches["po"] = PurlOn
 	stitches["k"] = KnitStitch
 	stitches["p"] = PurlStitch
 }
@@ -41,15 +45,9 @@ func init() {
 // supplied string.
 func getStitchKind(s string) StitchKind {
 	for k, v := range stitches {
-		if len(s) > len(k) {
-			continue
+		if strings.EqualFold(k, s) {
+			return v
 		}
-
-		if !strings.HasPrefix(k, s) {
-			continue
-		}
-
-		return v
 	}
 
 	return UnknownStitch

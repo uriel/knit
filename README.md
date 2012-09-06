@@ -23,11 +23,13 @@ All constructs are case insensitive.
 
 ### Stitch kinds
 
-* `K`: Knit stitch. 
-* `P`: Purl stitch. 
-* `S` `Sl`: Slip stitch. 
-* `Co`: Caston
-* `Bo`: Bindoff
+* `K`: Knit stitch
+* `P`: Purl stitch
+* `S` `Sl`: Slip stitch
+* `Co`: CastOn
+* `Ko`: KnitOn
+* `Po`: PurlOn
+* `Bo`: BindOff
 * `inc`: Increment
 * `dec`: Decrement
 * `Yo`: Yarn over

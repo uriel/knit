@@ -6,9 +6,12 @@ package knit
 import (
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"testing"
 )
+
+var stdout = os.Stdout
 
 func TestPattern(t *testing.T) {
 	tests := []string{
@@ -87,12 +90,13 @@ func compareUnroll(t *testing.T, p *Pattern, stitches []StitchKind) {
 		st, ok := node.(*Stitch)
 
 		if !ok {
-			t.Fatalf("%s type mismatch: Expected Stitch, have %T", p.Name, node)
+			t.Fatalf("%s:%d:%d type mismatch: Expected Stitch, have %T",
+				p.Name, node.Line(), node.Col(), node)
 		}
 
 		if st.Kind != stitches[i] {
-			t.Fatalf("%s type mismatch: Expected %q, have %q", p.Name,
-				stitches[i], st.Kind)
+			t.Fatalf("%s:%d:%d Stitch mismatch: Expected %d, have %d",
+				p.Name, node.Line(), node.Col(), stitches[i], st.Kind)
 		}
 	}
 }
