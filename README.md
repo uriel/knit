@@ -45,8 +45,8 @@ This pattern defines the stitching sequences for two distinct rows.
 * `Ko`: KnitOn
 * `Po`: PurlOn
 * `Bo`: BindOff
-* `inc`: Increment
-* `dec`: Decrement
+* `Inc`: Increment
+* `Dec`: Decrement
 * `Yo`: Yarn over
 
 Stitches can be directly followed by a quantifier (see below), in order
