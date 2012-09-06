@@ -7,12 +7,12 @@ type QuantifierKind uint8
 
 // Known quantifier kinds.
 const (
-	FillRowQuantifier QuantifierKind = iota
+	FillRow QuantifierKind = iota
 )
 
 func (q QuantifierKind) String() string {
 	switch q {
-	case FillRowQuantifier:
+	case FillRow:
 		return "FillRow"
 	}
 
@@ -42,7 +42,7 @@ func newQuantifier(v string, line, col int) *Quantifier {
 
 	switch v {
 	case "+":
-		q.Kind = FillRowQuantifier
+		q.Kind = FillRow
 
 	default:
 		return nil

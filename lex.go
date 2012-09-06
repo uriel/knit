@@ -166,18 +166,18 @@ func (l *lexer) number() bool {
 	return false
 }
 
-// ident consumes bytes for as long as they qualify as an ident.
-func (l *lexer) ident() bool {
+// stitch consumes bytes for as long as they qualify as a known stitch name.
+func (l *lexer) stitch() bool {
 	var n int
 
 	for {
-		b, err := l.next()
+		_, err := l.next()
 
 		if err != nil {
 			return false
 		}
 
-		if !isLetter(b) {
+		if getStitchKind(l.current()) == UnknownStitch {
 			l.rewind()
 			break
 		}
@@ -193,6 +193,47 @@ func (l *lexer) ident() bool {
 	return false
 }
 
+// reference consumes bytes for as long as they qualify as a reference.
+// This means a name preceeded with a dollar sign '$'.
+//
+// A name is an ident that can additionally contain underscores and
+// numbers.
+func (l *lexer) reference() bool {
+	b, err := l.next()
+
+	if err != nil {
+		return false
+	}
+
+	if b != '$' {
+		l.rewind()
+		return false
+	}
+
+	var n int
+	for {
+		b, err = l.next()
+
+		if err != nil {
+			return false
+		}
+
+		if !isName(b) {
+			l.rewind()
+			break
+		}
+
+		n++
+	}
+
+	if n > 0 {
+		l.emit(tokReference)
+		return true
+	}
+
+	return false
+}
+
 // quantifier consumes the next byte if it is a quantifier.
 func (l *lexer) quantifier() bool {
 	b, err := l.next()
@@ -202,13 +243,17 @@ func (l *lexer) quantifier() bool {
 	}
 
 	switch b {
-	case '*', '+', '-', '$', '^':
+	case '+':
 		l.emit(tokQuantifier)
 		return true
 	}
 
 	l.rewind()
 	return false
+}
+
+func isName(v byte) bool {
+	return v == '_' || isDigit(v) || isLetter(v)
 }
 
 func isLetter(v byte) bool {

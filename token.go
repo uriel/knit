@@ -14,6 +14,7 @@ const (
 	tokQuantifier
 	tokGroupStart
 	tokGroupEnd
+	tokReference
 )
 
 func (t tokenType) String() string {
@@ -32,6 +33,8 @@ func (t tokenType) String() string {
 		return "GROUPS"
 	case tokGroupEnd:
 		return "GROUPE"
+	case tokReference:
+		return "REF"
 	}
 
 	panic("unreachable")

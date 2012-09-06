@@ -5,14 +5,13 @@ package knit
 
 import (
 	"fmt"
-	"io"
 	"strconv"
 )
 
 // Pattern represents a single, complete knitting pattern.
 type Pattern struct {
-	Name string         // Name of the pattern.
-	Root NodeCollection // Root node for the pattern's node tree.
+	*Group        // Root node for the pattern's node tree.
+	Name   string // Name of the pattern.
 }
 
 // MustParse parses the input pattern.
@@ -31,8 +30,8 @@ func MustParse(name, pat string) *Pattern {
 func Parse(name, pat string) (*Pattern, error) {
 	p := new(Pattern)
 	p.Name = name
-	p.Root = new(Group)
-	node := p.Root
+	p.Group = new(Group)
+	node := NodeCollection(p.Group)
 	tokens := lex(pat)
 
 loop:
@@ -58,6 +57,14 @@ loop:
 
 			case tokGroupEnd:
 				node = node.Parent()
+
+			case tokStitch:
+				node.Append(&Stitch{
+					tok.Line, tok.Col, getStitchKind(tok.Data),
+				})
+
+			case tokReference:
+				node.Append(&Reference{tok.Data[1:], tok.Line, tok.Col})
 
 			case tokNumber:
 				n, err := strconv.ParseInt(tok.Data, 10, 32)
@@ -98,16 +105,6 @@ loop:
 				}
 
 				node.Append(q)
-
-			case tokStitch:
-				s := newStitch(tok.Data, tok.Line, tok.Col)
-
-				if s == nil {
-					return nil, fmt.Errorf("%s:%d:%d Unknown stitch kind %q,",
-						name, tok.Line, tok.Col, tok.Data)
-				}
-
-				node.Append(s)
 			}
 		}
 	}
@@ -115,40 +112,20 @@ loop:
 	return p, nil
 }
 
-// dump writes a human-readable form of the pattern node tree
-// to the given writer. This is for debugging only.
-func (p *Pattern) dump(w io.Writer) {
-	if p.Root == nil || p.Root.Len() == 0 {
-		fmt.Fprintf(w, "Pattern %q: <empty>\n", p.Name)
-	} else {
-		fmt.Fprintf(w, "Pattern %q:\n", p.Name)
-	}
+// Expand uses the supplied handler to return a copy of this pattern
+// with any references replaced by their actual data.
+func (p *Pattern) Expand(rh ReferenceHandler) (*Pattern, error) {
+	np := new(Pattern)
+	np.Name = p.Name
 
-	dumpNodes(w, p.Root, " ")
+	return np, nil
 }
 
-// dumpNodes recursively dumps nodes out to the guven writer in
-// a human-readable form. For debugging purposes only.
-func dumpNodes(w io.Writer, list NodeCollection, indent string) {
-	for _, node := range list.Nodes() {
-		switch tt := node.(type) {
-		case NodeCollection:
-			fmt.Fprintf(w, "%s%03d:%03d %T {\n",
-				indent, tt.Line(), tt.Col(), tt)
-			dumpNodes(w, tt, indent+"  ")
-			fmt.Fprintf(w, "%s}\n", indent)
+// Unwind unrolls all 'loop' constructs.
+// It returns a copy of the original pattern.
+func (p *Pattern) Unwind() (*Pattern, error) {
+	np := new(Pattern)
+	np.Name = p.Name
 
-		case *Stitch:
-			fmt.Fprintf(w, "%s%03d:%03d %T(%q)\n",
-				indent, tt.Line(), tt.Col(), tt, tt.Kind)
-
-		case *Quantifier:
-			fmt.Fprintf(w, "%s%03d:%03d %T(%q)\n",
-				indent, tt.Line(), tt.Col(), tt, tt.Kind)
-
-		case *Number:
-			fmt.Fprintf(w, "%s%03d:%03d %T(%d)\n",
-				indent, tt.Line(), tt.Col(), tt, tt.Value)
-		}
-	}
+	return np, nil
 }
