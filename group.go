@@ -5,7 +5,7 @@ package knit
 
 // Group is a collection of nodes.
 type Group struct {
-	parent NodeCollection
+	parent *Group
 	nodes  []Node
 	line   int
 	col    int
@@ -21,7 +21,7 @@ func (g *Group) Col() int { return g.col }
 func (g *Group) Len() int { return len(g.nodes) }
 
 // Pattern returns the group's parent node.
-func (g *Group) Parent() NodeCollection { return g.parent }
+func (g *Group) Parent() *Group { return g.parent }
 
 // Nodes returns the list of nodes for this group.
 func (g *Group) Nodes() []Node { return g.nodes }

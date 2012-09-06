@@ -31,7 +31,7 @@ func Parse(name, pat string) (*Pattern, error) {
 	p := new(Pattern)
 	p.Name = name
 	p.Group = new(Group)
-	node := NodeCollection(p.Group)
+	node := p.Group
 	tokens := lex(pat)
 
 loop:
@@ -118,7 +118,7 @@ func (p *Pattern) Expand(rh ReferenceHandler) error {
 		return fmt.Errorf("Expand %q: Invalid reference handler.", p.Name)
 	}
 
-	err := expand(p, rh)
+	err := expand(p.Group, rh)
 
 	if err != nil {
 		return fmt.Errorf("Expand %q: %v", p.Name, err)
@@ -128,13 +128,13 @@ func (p *Pattern) Expand(rh ReferenceHandler) error {
 }
 
 // Unroll unrolls all 'loop' constructs.
-func (p *Pattern) Unroll() { unroll(p) }
+func (p *Pattern) Unroll() { unroll(p.Group) }
 
 // expand recursively expands pattern references.
-func expand(list NodeCollection, rh ReferenceHandler) error {
+func expand(list *Group, rh ReferenceHandler) error {
 	for i, node := range list.Nodes() {
 		switch tt := node.(type) {
-		case NodeCollection:
+		case *Group:
 			err := expand(tt, rh)
 
 			if err != nil {
@@ -160,7 +160,7 @@ func expand(list NodeCollection, rh ReferenceHandler) error {
 }
 
 // unroll recursively unwinds loops.
-func unroll(list NodeCollection) {
+func unroll(list *Group) {
 	var tmp []Node
 	var elem Node
 	var i, k int
@@ -169,7 +169,7 @@ func unroll(list NodeCollection) {
 
 	for i = 0; i < len(nodes); i++ {
 		switch tt := nodes[i].(type) {
-		case NodeCollection:
+		case *Group:
 			unroll(tt)
 
 		case *Number:
@@ -194,7 +194,7 @@ func unroll(list NodeCollection) {
 
 	// Unpack groups.
 	for i = 0; i < len(nodes); i++ {
-		tt, ok := nodes[i].(NodeCollection)
+		tt, ok := nodes[i].(*Group)
 
 		if !ok {
 			continue

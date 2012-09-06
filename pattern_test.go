@@ -140,7 +140,7 @@ func dump(p *Pattern, w io.Writer) {
 func dumpNodes(w io.Writer, list []Node, indent string) {
 	for _, node := range list {
 		switch tt := node.(type) {
-		case NodeCollection:
+		case *Group:
 			fmt.Fprintf(w, "%s%03d:%03d %T {\n",
 				indent, tt.Line(), tt.Col(), tt)
 			dumpNodes(w, tt.Nodes(), indent+"  ")
