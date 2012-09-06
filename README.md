@@ -89,7 +89,7 @@ The host application must implement the `ReferenceHandler` and it should
 return a valid, compiled pattern for the supplied reference name.
 `Expand` expands all references in place.
 
-After this call, the 'B' above would look like this:
+After this call, the 'B' example above would look like this:
 
 	P10 [[P3 K3] 5] 2 P10
 
@@ -111,8 +111,9 @@ This is mostly practical when using the pattern to generate some other
 form of output. Getting rid of the nested groupings like this makes
 processing considerably easier.
 
-After a call to `Unroll`, there should be no Number or Group nodes
-left in the pattern. Only basic Stitch nodes.
+After a call to `Pattern.Unroll`, there should be no Number or Group nodes
+left in the pattern. Only basic Stitch nodes and optionally some Reference
+nodes if `Pattern.Expand` was not yet called.
 
 
 ### Usage
