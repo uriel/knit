@@ -15,8 +15,8 @@ var stdout = os.Stdout
 
 func TestPattern(t *testing.T) {
 	tests := []string{
-		`Row 1 co 9 [ p 3 s 3 k 3 inc $foo ] 10 bo 9`,
-		`Row 2 co9[p3s3k3inc$foo]10bo9`,
+		`Row 1 co 9 [ p 3 s 3 k 3 inc foo ] 10 bo 9`,
+		`Row 2 co9[p3s3k3incfoo]10bo9`,
 	}
 
 	for i, str := range tests {
@@ -29,12 +29,19 @@ func TestPattern(t *testing.T) {
 }
 
 func TestExpand(t *testing.T) {
-	a := MustParse("Pattern A", "[P3 K3] 10")
-	b := MustParse("Pattern B", "P10 $A 10 P10")
+	a, err := Parse("patA", "[P3 K3] 10")
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	err := b.Expand(func(name string) (*Pattern, error) {
-		if !strings.EqualFold(name, "a") {
-			t.Fatalf(`Expected reference "a", got %q`, name)
+	b, err := Parse("patB", "P10 patA 10 P10")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = b.Expand(func(name string) (*Pattern, error) {
+		if !strings.EqualFold(name, "patA") {
+			t.Fatalf(`Expected reference "patA", got %q`, name)
 		}
 
 		return a, nil
@@ -66,10 +73,25 @@ func TestUnroll(t *testing.T) {
 	}
 
 	// These should all yield the exact same sequence of nodes after unrolling.
-	a := MustParse("Pattern A", "P2 [K2 INC] 4 P2")
-	b := MustParse("Pattern B", "P2 [[K2 INC] 2] 2 P2")
-	c := MustParse("Pattern C", "P2 K2 INC K2 INC K2 INC K2 INC P2")
-	d := MustParse("Pattern D", "P P K K INC K K INC K K INC K K INC P P")
+	a, err := Parse("PatternA", "P2 [K2 INC] 4 P2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	b, err := Parse("PatternB", "P2 [[K2 INC] 2] 2 P2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	c, err := Parse("PatternC", "P2 K2 INC K2 INC K2 INC K2 INC P2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	d, err := Parse("PatternD", "P P K K INC K K INC K K INC K K INC P P")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	compareUnroll(t, a, stitches)
 	compareUnroll(t, b, stitches)

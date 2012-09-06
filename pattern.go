@@ -65,14 +65,11 @@ loop:
 				st := getStitchKind(tok.Data)
 
 				if st == UnknownStitch {
-					return nil, fmt.Errorf("%s:%d:%d Unknown stitch %q,",
-						name, tok.Line, tok.Col, tok.Data)
+					// Consider this a reference to an external pattern.
+					node.Append(&Reference{tok.Data, tok.Line, tok.Col})
+				} else {
+					node.Append(&Stitch{tok.Line, tok.Col, st})
 				}
-
-				node.Append(&Stitch{tok.Line, tok.Col, st})
-
-			case tokReference:
-				node.Append(&Reference{tok.Data[1:], tok.Line, tok.Col})
 
 			case tokNumber:
 				if node.Len() == 0 {

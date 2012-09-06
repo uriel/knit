@@ -14,7 +14,6 @@ const (
 	tokQuantifier
 	tokGroupStart
 	tokGroupEnd
-	tokReference
 	tokRow
 )
 
@@ -34,8 +33,6 @@ func (t tokenType) String() string {
 		return "GROUPS"
 	case tokGroupEnd:
 		return "GROUPE"
-	case tokReference:
-		return "REF"
 	case tokRow:
 		return "ROW"
 	}

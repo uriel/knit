@@ -22,7 +22,7 @@ const (
 	YarnOver
 )
 
-// Listing of known stitches.
+// Listing of builtin stitch types.
 var stitches map[string]StitchKind
 
 func init() {

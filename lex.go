@@ -215,47 +215,6 @@ func (l *lexer) literal(v string) bool {
 	return true
 }
 
-// reference consumes bytes for as long as they qualify as a reference.
-// This means a name preceeded with a dollar sign '$'.
-//
-// A name is an ident that can additionally contain underscores and
-// numbers.
-func (l *lexer) reference() bool {
-	b, err := l.next()
-
-	if err != nil {
-		return false
-	}
-
-	if b != '$' {
-		l.rewind()
-		return false
-	}
-
-	var n int
-	for {
-		b, err = l.next()
-
-		if err != nil {
-			return false
-		}
-
-		if !isName(b) {
-			l.rewind()
-			break
-		}
-
-		n++
-	}
-
-	if n > 0 {
-		l.emit(tokReference)
-		return true
-	}
-
-	return false
-}
-
 func isName(v byte) bool {
 	return v == '_' || isDigit(v) || isLetter(v)
 }

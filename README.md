@@ -84,14 +84,14 @@ In addition, we allow other patterns to be referenced by name.
 This allow us to split large patterns up into smaller, managable chunks and
 build more complex patterns by embedding the ready-made building blocks.
 
-For example, pattern 'A' is defined as `[P3 K3] 5`.
-Pattern 'B' can incorporate 'A' by referencing it by name: `P10 $A 2 P10`.
+For example, pattern 'abc' is defined as `[P3 K3] 5`.
+Pattern 'xyz' can incorporate 'abc' by referencing it by name: `P10 abc 2 P10`.
 
 
 ### Reference Expansion
 
-The parser does not expand the reference to 'A' during parsing, but it
-is left in there as a `Reference` node with the name `A`. It is up to the
+The parser does not expand the reference to 'abc' during parsing, but it
+is left in there as a `Reference` node with the name `abc`. It is up to the
 host application to supply the actual contents of this reference during use.
 Alternatively, one can instruct the pattern to do so by calling the
 `Pattern.Expand(ReferenceHandler)` method.
@@ -102,8 +102,8 @@ return a valid, compiled pattern for the supplied reference name.
 
 For example:
 
-	a, err := Parse("A", "[P3 K3] 5")
-	b, err := Parse("B", "P10 $A 2 P10")
+	a, err := Parse("abc", "[P3 K3] 5")
+	b, err := Parse("xyz", "P10 abc 2 P10")
 	err := b.Expand(...)
 
 'B' is now:
