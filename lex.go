@@ -193,6 +193,28 @@ func (l *lexer) ident() bool {
 	return false
 }
 
+// literal consumes bytes for as long as they are a byte-for-byte
+// match with the given string literal. If there is no match, the
+// reader is restored to the original position.
+func (l *lexer) literal(v string) bool {
+	pos := l.pos
+
+	for i := range v {
+		b, err := l.next()
+
+		if err != nil {
+			return false
+		}
+
+		if b != v[i] {
+			l.pos = pos
+			return false
+		}
+	}
+
+	return true
+}
+
 // reference consumes bytes for as long as they qualify as a reference.
 // This means a name preceeded with a dollar sign '$'.
 //

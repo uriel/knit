@@ -58,6 +58,9 @@ loop:
 			case tokGroupEnd:
 				node = node.Parent()
 
+			case tokRow:
+				node.Append(&Row{tok.Line, tok.Col, 0})
+
 			case tokStitch:
 				st := getStitchKind(tok.Data)
 
@@ -72,6 +75,12 @@ loop:
 				node.Append(&Reference{tok.Data[1:], tok.Line, tok.Col})
 
 			case tokNumber:
+				if node.Len() == 0 {
+					return nil, fmt.Errorf(
+						"%s:%d:%d Expected Stitch, Group or Row, found Number %q,",
+						name, tok.Line, tok.Col, tok.Data)
+				}
+
 				n, err := strconv.ParseInt(tok.Data, 10, 32)
 
 				if err != nil {
@@ -79,17 +88,25 @@ loop:
 						name, tok.Line, tok.Col, tok.Data)
 				}
 
-				// A number can not directly follow another number.
 				if sz := node.Len(); sz > 0 {
-					switch node.Node(sz - 1).(type) {
+					switch tt := node.Node(sz - 1).(type) {
 					case *Number:
+						// A number can not directly follow another number.
 						return nil, fmt.Errorf(
-							"%s:%d:%d Expected Stitch or Group, found Number %q,",
+							"%s:%d:%d Expected Stitch, Group or Row, found Number %q,",
 							name, tok.Line, tok.Col, tok.Data)
-					}
-				}
 
-				node.Append(&Number{int(n), tok.Line, tok.Col})
+					case *Row:
+						// A number following a Row should be considered
+						// the row index instead of a quantifier.
+						tt.Value = int(n)
+
+					default:
+						node.Append(&Number{int(n), tok.Line, tok.Col})
+					}
+				} else {
+					node.Append(&Number{int(n), tok.Line, tok.Col})
+				}
 			}
 		}
 	}

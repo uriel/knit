@@ -15,8 +15,8 @@ var stdout = os.Stdout
 
 func TestPattern(t *testing.T) {
 	tests := []string{
-		`co 9 [ p 3 s 3 k 3 inc $foo ] 10 bo 9`,
-		`co9[p3s3k3inc$foo]10bo9`,
+		`Row 1 co 9 [ p 3 s 3 k 3 inc $foo ] 10 bo 9`,
+		`Row 2 co9[p3s3k3inc$foo]10bo9`,
 	}
 
 	for i, str := range tests {
@@ -148,6 +148,10 @@ func dumpNodes(w io.Writer, list []Node, indent string) {
 
 			fmt.Fprintf(w, "%s%03d:%03d %T(%q)\n",
 				indent, tt.Line(), tt.Col(), tt, s)
+
+		case *Row:
+			fmt.Fprintf(w, "%s%03d:%03d %T(%d)\n",
+				indent, tt.Line(), tt.Col(), tt, tt.Value)
 
 		case *Reference:
 			fmt.Fprintf(w, "%s%03d:%03d %T(%q)\n",

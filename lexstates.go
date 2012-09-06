@@ -6,6 +6,11 @@ package knit
 func lexText(l *lexer) lexState {
 	l.whitespace()
 
+	if l.literal("row") {
+		l.emit(tokRow)
+		return lexText
+	}
+
 	if l.number() {
 		return lexText
 	}
@@ -26,6 +31,12 @@ func lexText(l *lexer) lexState {
 		return lexText
 	case ']':
 		l.emit(tokGroupEnd)
+		return lexText
+
+	// Punctuation sometimes used by users.
+	// Don't consider it an error, just ignore it.
+	case ':', ',', '.', ';':
+		l.ignore()
 		return lexText
 	}
 

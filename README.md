@@ -20,6 +20,21 @@ recognize and these are only a small handful of minimal
 components we need to build everything else (see below).
 All constructs are case insensitive.
 
+### Rows
+
+A single pattern can define stitch sequences for multiple rows.
+A row can be denoted with the `Row` keyword. It can optionally be
+followed by a number, indicating which row this represents.
+
+Any pattern data following this Row node, up until the end of the
+pattern, or the next Row node, should be considered part of the same
+row. For example:
+
+	Row 1: P10 K10 P10
+	Row 2: K10 P10 K10
+
+This pattern defines the stitching sequences for two distinct rows.
+
 
 ### Stitch kinds
 

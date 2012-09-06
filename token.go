@@ -15,6 +15,7 @@ const (
 	tokGroupStart
 	tokGroupEnd
 	tokReference
+	tokRow
 )
 
 func (t tokenType) String() string {
@@ -35,6 +36,8 @@ func (t tokenType) String() string {
 		return "GROUPE"
 	case tokReference:
 		return "REF"
+	case tokRow:
+		return "ROW"
 	}
 
 	panic("unreachable")
