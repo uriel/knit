@@ -106,7 +106,7 @@ For example:
 	b, err := Parse("xyz", "P10 abc 2 P10")
 	err := b.Expand(...)
 
-'B' is now:
+'xyz' is now:
 
 	P10 [[P3 K3] 5] 2 P10
 
@@ -129,8 +129,8 @@ form of output. Getting rid of the nested groupings like this makes
 processing considerably easier.
 
 After a call to `Pattern.Unroll`, there should be no Number or Group nodes
-left in the pattern. Only basic Stitch nodes and optionally some Reference
-nodes if `Pattern.Expand` was not yet called.
+left in the pattern. Only a flat list of Stitch nodes and optionally some
+Reference nodes if `Pattern.Expand` was not yet called.
 
 
 ### Usage
