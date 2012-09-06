@@ -1,5 +1,7 @@
 ## knit
 
+**Note**: This is work in progress and subject to change.
+
 Knit parses knitting patterns into a parse tree.
 
 To make this work reliably, we define a formal and relatively
